@@ -1,18 +1,29 @@
 import { useState } from 'react';
-import type { UserType } from '../types';
+import { useNavigate } from 'react-router-dom';
+import { sampleUsers } from '../data/sampleData';
 
 export default function LoginForm() {
+  const navigate = useNavigate();
   const [isUniversityMember, setIsUniversityMember] = useState(true);
   const [formData, setFormData] = useState({
     universityId: '',
     phoneNumber: '',
     password: '',
   });
+  const [error, setError] = useState('');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle login logic
-    console.log(formData);
+    setError('');
+
+    const identifier = isUniversityMember ? formData.universityId : formData.phoneNumber;
+    const user = sampleUsers[identifier];
+
+    if (user && user.password === formData.password) {
+      navigate('/dashboard', { state: { user } });
+    } else {
+      setError('Invalid credentials');
+    }
   };
 
   return (
@@ -20,6 +31,12 @@ export default function LoginForm() {
       <form onSubmit={handleSubmit} className="w-full max-w-md bg-white rounded-lg shadow-md p-6 space-y-6">
         <h2 className="text-2xl font-bold text-[#002147] text-center">Welcome Back</h2>
         
+        {error && (
+          <div className="bg-red-50 text-red-500 p-3 rounded-lg text-center">
+            {error}
+          </div>
+        )}
+
         <div className="flex justify-center space-x-4 mb-6">
           <button
             type="button"
